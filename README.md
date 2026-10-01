@@ -96,20 +96,6 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## ☁️ Deployment Guide
-
-### Deploying to Streamlit Community Cloud (Recommended)
-1. Push your repository to GitHub (`https://github.com/<your-username>/Kolam_gen`).
-2. Log into [share.streamlit.io](https://share.streamlit.io/).
-3. Click **"New app"** and select your repository:
-   - **Repository:** `Kolam_gen`
-   - **Branch:** `main`
-   - **Main file path:** `app.py`
-4. Click **Deploy!**
-*(The included `packages.txt` and `requirements.txt` with `opencv-python-headless` guarantee a zero-configuration cloud build).*
-
----
-
 ## 📂 Project Structure
 
 ```text
@@ -127,3 +113,22 @@ Kolam_gen/
 │   └── sample_square_5.png    # 5x5 Square Matrix (25 dots)
 └── README.md           # Technical Documentation & Architecture Specification
 ```
+
+---
+
+## 📚 Academic Foundations & References
+
+The mathematical models and algorithmic rules implemented in this project are grounded in published ethnomathematics, knot theory, and computational craft research:
+
+1. **The 5 Axiomatic Rules of Pulli / Sikku Kolam:**
+   - **Marcia Ascher (2002)**, *"The Kolam Tradition: A tradition of figure-drawing in southern India expresses mathematical ideas and has attracted the attention of computer science"*, *American Scientist*, Vol. 90, No. 1, pp. 56–63.
+   - Formulates the 5 canonical structural constraints: *(1) Obstacle Rule, (2) Continuity Rule (Eulerian Circuit), (3) Completeness Rule, (4) Smoothness Rule, (5) Diagonal Rule*.
+
+2. **Data Physicalization & Parametric Kolam Grammars:**
+   - **Shri Harini Ramesh & Fateme Rajabiyazdi (University of Calgary, Canada)**, *"Pulli Kolam: A Traditional South Indian Craft Practice for Representing Data"*.
+   - Explores parametric mappings of Pulli Kolam across dot pressure/size, multi-pattern generation over identical lattices, line styles (single vs. double *Kambi*), and natural pigment palettes (turmeric, kumkum, rice flour).
+
+3. **Mirror-Curve Algorithms & Lunda Designs:**
+   - **Paulus Gerdes (1990)**, *"Lunda Geometry: Designs, Polyominoes, Patterns, Symmetries"*, Universidade Pedagógica, Maputo.
+   - Establishes the matrix-based mirror-curve tracing algorithm governing Eulerian loop closures across orthogonal dot matrices.
+
