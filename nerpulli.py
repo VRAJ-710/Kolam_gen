@@ -100,10 +100,61 @@ def to_screen_coords(gx, gy, W, H, spacing=SPACING):
     return (gx * spacing - offset_x, gy * spacing - offset_y)
 
 # ---------------------------------------------------------------------
-# 3. TURTLE DRAWING PRIMITIVES
+# 3. TURTLE DRAWING PRIMITIVES & 3D INTERLACED WEAVE
 # ---------------------------------------------------------------------
 def draw_line(pen, p1, p2):
     """Draws a smooth straight segment between two screen points."""
+    pen.penup()
+    pen.goto(p1)
+    pen.pendown()
+    pen.goto(p2)
+
+def line_intersection(p1, p2, p3, p4):
+    """
+    Computes the geometric intersection point of segments p1-p2 and p3-p4.
+    Returns (ix, iy) if they genuinely cross inside both segments, else None.
+    """
+    x1, y1 = p1
+    x2, y2 = p2
+    x3, y3 = p3
+    x4, y4 = p4
+    denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if abs(denom) < 1e-6:
+        return None
+    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+    u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
+    if 0.04 < t < 0.96 and 0.04 < u < 0.96:
+        ix = x1 + t * (x2 - x1)
+        iy = y1 + t * (y2 - y1)
+        return (ix, iy)
+    return None
+
+def draw_over_pass(pen, center, angle_deg, length, color, bg_color, width=3.2, gap=5.0):
+    """
+    Renders an authentic 3D over-pass bridge at a crossing intersection:
+    1. Erases a small rectangular margin (gap) along the top strand using bg_color.
+    2. Draws the top strand smoothly through the gap in the foreground color.
+    Creates the classic over-under woven Celtic / Kambi Kolam ribbon effect.
+    """
+    cx, cy = center
+    rad = math.radians(angle_deg)
+    dx = math.cos(rad) * (length / 2.0)
+    dy = math.sin(rad) * (length / 2.0)
+    
+    p1 = (cx - dx, cy - dy)
+    p2 = (cx + dx, cy + dy)
+    
+    # 1. Mask out under-strand with background color (creates negative space margin)
+    pen.color(bg_color)
+    pen.width(width + gap)
+    pen.penup()
+    pen.goto(p1)
+    pen.pendown()
+    pen.goto(p2)
+    
+    # 2. Redraw top-strand in strand color
+    pen.color(color)
+    pen.width(width)
     pen.penup()
     pen.goto(p1)
     pen.pendown()
@@ -155,12 +206,13 @@ def draw_dots(pen, dots, W, H, palette):
 # ---------------------------------------------------------------------
 # 4. NÉR PULLI GENERATIVE ENGINE (Through + Around Dots)
 # ---------------------------------------------------------------------
-def generate_ner_pulli_design(line_pen, dots, W, H, palette, motif_style="lotus_mandala", seed=None):
+def generate_ner_pulli_design(line_pen, dots, W, H, palette, motif_style="lotus_mandala", seed=None, use_3d_weave=True):
     """
     Synthesizes an authentic Nér Pulli Kolam design combining:
     1. Through-the-dot straight structural chords (Kodu framework)
     2. Around-the-dot looping arcs (Sikku petals & loops)
     3. Strict 4-fold or bilateral mirror symmetry.
+    4. Optional 3D Woven Ribbon Interlacing (Over-Under passes, Anu Reddy 2023).
     """
     if seed is not None:
         random.seed(seed)
@@ -168,6 +220,15 @@ def generate_ner_pulli_design(line_pen, dots, W, H, palette, motif_style="lotus_
     center_gx = (W - 1) / 2.0
     center_gy = (H - 1) / 2.0
     
+    # Store drawn line segments for 3D over-under knot calculation
+    drawn_segments = []
+    
+    def stroke_line(p1, p2, color, width):
+        line_pen.color(color)
+        line_pen.width(width)
+        draw_line(line_pen, p1, p2)
+        drawn_segments.append({'p1': p1, 'p2': p2, 'color': color, 'width': width})
+
     # Classify dots into concentric geometric shells
     dot_list = list(dots)
     shells = {}
@@ -183,32 +244,28 @@ def generate_ner_pulli_design(line_pen, dots, W, H, palette, motif_style="lotus_
     # LAYER 1: THROUGH-THE-DOTS (Kodu Connections - Stars & Diamonds)
     # Lines pass directly THROUGH the dots, establishing the core geometry.
     # =================================================================
-    line_pen.color(palette["thru_line"])
-    line_pen.width(3.2)
+    thru_color = palette["thru_line"]
+    thru_width = 3.2
 
     # 1A. Connect concentric diamond rings (passing through dots)
     for dist_sq in sorted_dists:
         shell_dots = shells[dist_sq]
         if len(shell_dots) in (4, 8):
-            # Sort by angle around center
             sorted_by_angle = sorted(
                 shell_dots,
                 key=lambda p: math.atan2(p[1] - center_gy, p[0] - center_gx)
             )
-            # Draw closed diamond polygon passing directly THROUGH the dots
             for idx in range(len(sorted_by_angle)):
                 p1 = sorted_by_angle[idx]
                 p2 = sorted_by_angle[(idx + 1) % len(sorted_by_angle)]
                 sp1 = to_screen_coords(p1[0], p1[1], W, H)
                 sp2 = to_screen_coords(p2[0], p2[1], W, H)
-                draw_line(line_pen, sp1, sp2)
+                stroke_line(sp1, sp2, thru_color, thru_width)
 
     # 1B. 8-Pointed Star / Cross Diagonal Chords (Directly intersecting dots)
     if len(sorted_dists) >= 3:
-        outer_shell = shells[sorted_dists[-1]]
         mid_shell = shells[sorted_dists[min(2, len(sorted_dists) - 1)]]
         
-        # Connect diagonal opposite dots through center
         for dot in mid_shell:
             dx = dot[0] - center_gx
             dy = dot[1] - center_gy
@@ -216,75 +273,97 @@ def generate_ner_pulli_design(line_pen, dots, W, H, palette, motif_style="lotus_
             if opp_dot in dots:
                 sp1 = to_screen_coords(dot[0], dot[1], W, H)
                 sp2 = to_screen_coords(opp_dot[0], opp_dot[1], W, H)
-                # Draw central spine line passing through both dots and center
-                draw_line(line_pen, sp1, sp2)
+                stroke_line(sp1, sp2, thru_color, thru_width)
 
     # =================================================================
     # LAYER 2: AROUND-THE-DOTS (Sikku Curves - Petals & Outer Loops)
     # Lines loop smoothly around the dots without touching their centers.
     # =================================================================
-    line_pen.color(palette["arc_line"])
-    line_pen.width(3.0)
-    arc_radius = SPACING * 0.42   # Arcs curve at distance ~27px around dots
+    arc_color = palette["arc_line"]
+    arc_width = 3.0
+    line_pen.color(arc_color)
+    line_pen.width(arc_width)
+    arc_radius = SPACING * 0.42
 
-    # Find perimeter/boundary dots that have exposed outer faces
     for gx, gy in dot_list:
         neighbors = {
             'N': (gx, gy + 1) in dots,
             'S': (gx, gy - 1) in dots,
             'E': (gx + 1, gy) in dots,
             'W': (gx - 1, gy) in dots,
-            'NE': (gx + 1, gy + 1) in dots,
-            'NW': (gx - 1, gy + 1) in dots,
-            'SE': (gx + 1, gy - 1) in dots,
-            'SW': (gx - 1, gy - 1) in dots,
         }
         
         sx, sy = to_screen_coords(gx, gy, W, H)
         
-        # Corner & tip dots get graceful curved outer loops (Lotus Petal Cap)
         if not neighbors['N'] and not neighbors['E']:
-            # North-East corner loop around dot
             draw_arc_around_dot(line_pen, (sx, sy), arc_radius, 0, 90)
-            # Connect loop legs to neighbor midpoints
-            draw_line(line_pen, (sx + arc_radius, sy), (sx + arc_radius, sy - SPACING * 0.4))
-            draw_line(line_pen, (sx, sy + arc_radius), (sx - SPACING * 0.4, sy + arc_radius))
+            stroke_line((sx + arc_radius, sy), (sx + arc_radius, sy - SPACING * 0.4), arc_color, arc_width)
+            stroke_line((sx, sy + arc_radius), (sx - SPACING * 0.4, sy + arc_radius), arc_color, arc_width)
             
         if not neighbors['N'] and not neighbors['W']:
-            # North-West corner loop around dot
             draw_arc_around_dot(line_pen, (sx, sy), arc_radius, 90, 180)
-            draw_line(line_pen, (sx, sy + arc_radius), (sx + SPACING * 0.4, sy + arc_radius))
-            draw_line(line_pen, (sx - arc_radius, sy), (sx - arc_radius, sy - SPACING * 0.4))
+            stroke_line((sx, sy + arc_radius), (sx + SPACING * 0.4, sy + arc_radius), arc_color, arc_width)
+            stroke_line((sx - arc_radius, sy), (sx - arc_radius, sy - SPACING * 0.4), arc_color, arc_width)
             
         if not neighbors['S'] and not neighbors['W']:
-            # South-West corner loop around dot
             draw_arc_around_dot(line_pen, (sx, sy), arc_radius, 180, 270)
-            draw_line(line_pen, (sx - arc_radius, sy), (sx - arc_radius, sy + SPACING * 0.4))
-            draw_line(line_pen, (sx, sy - arc_radius), (sx + SPACING * 0.4, sy - arc_radius))
+            stroke_line((sx - arc_radius, sy), (sx - arc_radius, sy + SPACING * 0.4), arc_color, arc_width)
+            stroke_line((sx, sy - arc_radius), (sx + SPACING * 0.4, sy - arc_radius), arc_color, arc_width)
             
         if not neighbors['S'] and not neighbors['E']:
-            # South-East corner loop around dot
             draw_arc_around_dot(line_pen, (sx, sy), arc_radius, 270, 360)
-            draw_line(line_pen, (sx, sy - arc_radius), (sx - SPACING * 0.4, sy - arc_radius))
-            draw_line(line_pen, (sx + arc_radius, sy), (sx + arc_radius, sy + SPACING * 0.4))
+            stroke_line((sx, sy - arc_radius), (sx - SPACING * 0.4, sy - arc_radius), arc_color, arc_width)
+            stroke_line((sx + arc_radius, sy), (sx + arc_radius, sy + SPACING * 0.4), arc_color, arc_width)
 
     # =================================================================
     # LAYER 3: INTERLACING BRIDGES (Connecting Through-dots to Around-dots)
-    # Forms the unified continuous flow characteristic of Nér Pulli.
     # =================================================================
     line_pen.color(palette["accent"])
     line_pen.width(2.4)
     
-    # 4-fold floral petal cusps arching between adjacent dot pairs
     for gx, gy in dot_list:
         if (gx + 1, gy) in dots and gy % 2 == 0:
             p1 = to_screen_coords(gx, gy, W, H)
             p2 = to_screen_coords(gx + 1, gy, W, H)
             mid_x = (p1[0] + p2[0]) / 2.0
             mid_y = (p1[1] + p2[1]) / 2.0
-            
-            # Draw decorative cusp arching between the two dots
             draw_arc_around_dot(line_pen, (mid_x, mid_y + SPACING * 0.15), SPACING * 0.35, 200, 340)
+
+    # =================================================================
+    # LAYER 4: 3D WOVEN RIBBON INTERLACING (Over-Under Passes)
+    # Enforces alternating knot theory passes (Anu Reddy / Nagata, 2023)
+    # =================================================================
+    if use_3d_weave and len(drawn_segments) > 1:
+        crossings = []
+        for i in range(len(drawn_segments)):
+            for j in range(i + 1, len(drawn_segments)):
+                s1 = drawn_segments[i]
+                s2 = drawn_segments[j]
+                pt = line_intersection(s1['p1'], s1['p2'], s2['p1'], s2['p2'])
+                if pt is not None:
+                    ang1 = math.degrees(math.atan2(s1['p2'][1] - s1['p1'][1], s1['p2'][0] - s1['p1'][0]))
+                    ang2 = math.degrees(math.atan2(s2['p2'][1] - s2['p1'][1], s2['p2'][0] - s2['p1'][0]))
+                    crossings.append((pt, s1, ang1, s2, ang2))
+
+        for pt, s1, ang1, s2, ang2 in crossings:
+            # Alternating knot rule:
+            # Parity based on spatial position gives consistent over/under alternation
+            grid_parity = int(round(pt[0] / 30.0) + round(pt[1] / 30.0))
+            is_s1_over = (grid_parity % 2 == 0)
+
+            top_seg = s1 if is_s1_over else s2
+            top_angle = ang1 if is_s1_over else ang2
+
+            draw_over_pass(
+                line_pen,
+                center=pt,
+                angle_deg=top_angle,
+                length=22.0,
+                color=top_seg['color'],
+                bg_color=palette["bg"],
+                width=top_seg['width'],
+                gap=5.5
+            )
 
 # ---------------------------------------------------------------------
 # 5. NAGATA N-LINE BLUEPRINT OVERLAY (Alpaca Salon 2023 Method)
@@ -365,13 +444,16 @@ def prompt_user_menu():
     seed_input = input("Random Seed (press Enter for random, or enter integer): ").strip()
     seed = int(seed_input) if seed_input.isdigit() else random.randint(1, 99999)
     
+    weave_input = input("Enable 3D Woven Ribbon (Over-Under Passes)? (y/n) [default y]: ").strip().lower()
+    use_3d_weave = (weave_input != 'n')
+
     blueprint_input = input("Overlay Nagata N-Line Template Blueprint? (y/n) [default n]: ").strip().lower()
     show_blueprint = (blueprint_input == 'y')
     
-    return lengths, palette, seed, show_blueprint
+    return lengths, palette, seed, show_blueprint, use_3d_weave
 
 def main():
-    lengths, palette, seed, show_blueprint = prompt_user_menu()
+    lengths, palette, seed, show_blueprint, use_3d_weave = prompt_user_menu()
     dots, W, H = create_ner_pulli_dots(lengths)
     
     # Initialize Turtle Screen
@@ -382,16 +464,17 @@ def main():
     screen.tracer(0)  # Enable instant fast rendering
     
     # Status overlay pen
+    mode_desc = "3D Woven Interlacing Active (Over-Under)" if use_3d_weave else "Flat 2D Planar Strokes"
     info_pen = turtle.Turtle()
     info_pen.hideturtle()
     info_pen.penup()
     info_pen.color("#8B949E")
-    info_pen.goto(0, 370)
+    info_pen.goto(0, 368)
     info_pen.write(
         f"NÉR PULLI KOLAM  ·  Grid: {lengths} ({len(dots)} Dots)  ·  Seed: {seed}\n"
-        f"Gold = Sikku Loops (Around Dots)  |  Saffron = Kodu Chords (Through Dots)",
+        f"Gold = Sikku Loops (Around Dots)  |  Saffron = Kodu Chords (Through Dots)  |  {mode_desc}",
         align="center",
-        font=("Arial", 11, "bold")
+        font=("Arial", 10, "bold")
     )
     
     # Optional Nagata N-Line Blueprint skeleton
@@ -407,7 +490,7 @@ def main():
     line_pen = turtle.Turtle()
     line_pen.hideturtle()
     line_pen.speed(0)
-    generate_ner_pulli_design(line_pen, dots, W, H, palette, seed=seed)
+    generate_ner_pulli_design(line_pen, dots, W, H, palette, seed=seed, use_3d_weave=use_3d_weave)
     
     # Refresh screen
     screen.update()
