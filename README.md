@@ -132,3 +132,12 @@ The mathematical models and algorithmic rules implemented in this project are gr
    - **Paulus Gerdes (1990)**, *"Lunda Geometry: Designs, Polyominoes, Patterns, Symmetries"*, Universidade Pedagógica, Maputo.
    - Establishes the matrix-based mirror-curve tracing algorithm governing Eulerian loop closures across orthogonal dot matrices.
 
+4. **The N-Line Drawing Method & Algorithmic Blueprint:**
+   - **Anu Reddy (2023)**, *"Kambi Kolam as Algorithmic Pattern"*, *Alpaca Salon 2023 / Algorithmic Pattern*, [Publication Link](https://alpaca.pubpub.org/pub/xywz3ebv/release/1).
+   - Formulates the computational synthesis of Kambi Kolams via Shojiro Nagata's N-line (Navigating Line) method, midpoint crossings, alternating clockwise/anti-clockwise turning rules, and 3D woven knot interlacing.
+
+5. **Picture Languages, Cycle Grammars & Knot Morphologies:**
+   - **Gift Siromoney & Rani Siromoney (1974, 1986)**, *"Picture Languages with Array Grammars"* & *"Languages of Cycle Grammars"*, Madras Christian College.
+   - **Kiwamu Yanagisawa & Shojiro Nagata (2006)**, *"Digitalization of Kolam Patterns and Tactile Kolam Tools"*, Hexadecimal knot code representations and topological cycle analysis.
+
+
