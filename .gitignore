@@ -8,4 +8,6 @@ samples/Screenshot*.png
 .venv/
 env/
 .DS_Store
+nerpulli.py
+
 
