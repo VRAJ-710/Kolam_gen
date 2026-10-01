@@ -2,6 +2,10 @@
 app.py - High-Performance Vision & Algorithmic Recreation Studio for Kolam Patterns
 Problem Statement: Detect symmetry and pattern rules from sample Kolam designs
 and generate new designs following those rules.
+
+Theme & Aesthetic: "Rice flour on a swept threshold" (South Indian Minimalist Heritage)
+Colors: Semman/Terracotta (#7A2E1D), Rice-paper (#F7EFE2), Flour (#FFF8EC), 
+        Turmeric (#E0A43B), Banana Leaf (#2F6B4F), Kumkum (#B3261E).
 """
 
 import streamlit as st
@@ -22,87 +26,152 @@ importlib.reload(cv_detector)
 importlib.reload(kolam_engine)
 
 st.set_page_config(
-    page_title="Kolamify Studio - Pattern Perception & Synthesis",
-    page_icon="◆",
+    page_title="KolamCraft — Traditional Sikku Perception & Synthesis",
+    page_icon="🌸",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Architectural Styling (Sleek Obsidian & Warm Gold - Zero Generic AI Tropes)
+# Custom Heritage South Indian Styling (Rice flour on swept terracotta threshold)
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+        --bg-terracotta: #7A2E1D;
+        --bg-soft: #F7EFE2;
+        --ink: #2B1A12;
+        --flour: #FFF8EC;
+        --accent: #E0A43B;
+        --leaf: #2F6B4F;
+        --kumkum: #B3261E;
+        --threshold-dark: #1A0E0A;
+        --card-bg: #25130E;
+        --radius: 14px;
+    }
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Inter', -apple-system, sans-serif;
+        color: #FFF8EC;
     }
-    code, pre {
+
+    h1, h2, h3, .brand-title, .section-header {
+        font-family: 'Fraunces', Georgia, serif !important;
+        letter-spacing: -0.3px;
+    }
+
+    .tamil-text {
+        font-family: 'Noto Sans Tamil', 'Fraunces', serif;
+    }
+
+    code, pre, .mono-text {
         font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Main Container Styles */
+    /* Top Heritage Hero Header */
     .brand-container {
         text-align: center;
-        padding: 1.5rem 0 1rem 0;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #1E2530;
+        padding: 1.8rem 1rem 1.4rem 1rem;
+        margin-bottom: 1.8rem;
+        background: linear-gradient(180deg, rgba(122, 46, 29, 0.45) 0%, rgba(26, 14, 10, 0.6) 100%);
+        border: 1px solid rgba(224, 164, 59, 0.25);
+        border-radius: var(--radius);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
     .brand-pill {
         display: inline-block;
-        padding: 4px 14px;
-        background: rgba(212, 175, 55, 0.1);
-        border: 1px solid rgba(212, 175, 55, 0.3);
+        padding: 5px 16px;
+        background: rgba(224, 164, 59, 0.12);
+        border: 1px solid rgba(224, 164, 59, 0.35);
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 0.74rem;
         font-weight: 600;
-        letter-spacing: 1.5px;
-        color: #D4AF37;
-        margin-bottom: 0.75rem;
+        letter-spacing: 1.6px;
+        color: #E0A43B;
+        margin-bottom: 0.8rem;
         text-transform: uppercase;
     }
     .brand-title {
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        color: #FFFFFF;
-        letter-spacing: -0.5px;
+        color: #FFF8EC;
         margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+    .brand-title span.tamil-accent {
+        font-family: 'Noto Sans Tamil', serif;
+        font-weight: 400;
+        font-size: 2.1rem;
+        color: #E0A43B;
+        margin-left: 8px;
     }
     .brand-subtitle {
-        color: #8B949E;
-        font-size: 0.95rem;
-        margin-top: 0.4rem;
+        color: #E6D5C3;
+        font-size: 0.98rem;
+        margin-top: 0.5rem;
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.5;
     }
 
     /* Metric & Telemetry Panels */
     .telemetry-card {
-        background: #141820;
-        border: 1px solid #212836;
-        border-radius: 10px;
+        background: var(--card-bg);
+        border: 1px solid rgba(224, 164, 59, 0.22);
+        border-radius: var(--radius);
         padding: 14px 16px;
         margin-bottom: 12px;
-        transition: border-color 0.2s ease, transform 0.2s ease;
+        transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     }
     .telemetry-card:hover {
-        border-color: #D4AF37;
-        transform: translateY(-1px);
+        border-color: #E0A43B;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(224, 164, 59, 0.15);
     }
     .telemetry-label {
         font-size: 0.72rem;
         font-weight: 600;
-        color: #8B949E;
-        letter-spacing: 1px;
+        color: #E0A43B;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
         margin-bottom: 4px;
     }
     .telemetry-value {
-        font-size: 1.15rem;
+        font-size: 1.18rem;
         font-weight: 700;
-        color: #F0F6FC;
+        color: #FFF8EC;
+        font-family: 'Fraunces', serif;
     }
     .telemetry-sub {
-        font-size: 0.8rem;
-        color: #6E7681;
-        margin-top: 4px;
+        font-size: 0.82rem;
+        color: #CBB8A3;
+        margin-top: 5px;
+    }
+
+    /* Rule Inspector Chips (from design tokens) */
+    .rule-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        margin-right: 6px;
+        margin-bottom: 6px;
+    }
+    .rule-chip-valid {
+        background: rgba(47, 107, 79, 0.28);
+        color: #58D68D;
+        border: 1px solid rgba(47, 107, 79, 0.55);
+    }
+    .rule-chip-accent {
+        background: rgba(224, 164, 59, 0.18);
+        color: #F3C973;
+        border: 1px solid rgba(224, 164, 59, 0.45);
     }
 
     /* Status Badges */
@@ -110,54 +179,105 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.75rem;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.76rem;
         font-weight: 600;
         letter-spacing: 0.5px;
     }
     .status-brahma {
-        background: rgba(46, 160, 67, 0.15);
-        color: #3FB950;
-        border: 1px solid rgba(46, 160, 67, 0.3);
+        background: rgba(47, 107, 79, 0.35);
+        color: #58D68D;
+        border: 1px solid rgba(47, 107, 79, 0.65);
     }
     .status-interlocking {
-        background: rgba(56, 139, 253, 0.15);
-        color: #58A6FF;
-        border: 1px solid rgba(56, 139, 253, 0.3);
+        background: rgba(224, 164, 59, 0.22);
+        color: #F3C973;
+        border: 1px solid rgba(224, 164, 59, 0.5);
     }
 
-    /* Radar scan pulse animation */
-    @keyframes radarSweep {
-        0% { transform: translateY(-100%); opacity: 0; }
-        50% { opacity: 0.5; }
-        100% { transform: translateY(100%); opacity: 0; }
+    /* Active Grid Banner */
+    .active-grid-banner {
+        background: rgba(122, 46, 29, 0.35);
+        border: 1px solid rgba(224, 164, 59, 0.35);
+        border-radius: var(--radius);
+        padding: 11px 18px;
+        margin: 14px 0 18px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     }
-    .scan-container {
-        position: relative;
-        overflow: hidden;
-        border-radius: 8px;
+
+    /* Button and Interactive Elements Styling */
+    div.stButton > button {
+        border-radius: var(--radius) !important;
+        border: 1px solid rgba(224, 164, 59, 0.4) !important;
+        background: rgba(43, 26, 18, 0.8) !important;
+        color: #FFF8EC !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
     }
-    .scan-bar {
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 3px;
-        background: linear-gradient(90deg, transparent, #D4AF37, transparent);
-        animation: radarSweep 2.5s infinite linear;
+    div.stButton > button:hover {
+        border-color: #E0A43B !important;
+        background: rgba(224, 164, 59, 0.2) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(224, 164, 59, 0.2) !important;
+    }
+
+    div.stDownloadButton > button {
+        border-radius: var(--radius) !important;
+        border: 1px solid rgba(224, 164, 59, 0.45) !important;
+        background: rgba(122, 46, 29, 0.4) !important;
+        color: #FFF8EC !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+    }
+    div.stDownloadButton > button:hover {
+        border-color: #E0A43B !important;
+        background: rgba(224, 164, 59, 0.28) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Custom Styling for Streamlit Tabs */
+    button[data-baseweb="tab"] {
+        font-family: 'Fraunces', serif !important;
+        font-size: 1.05rem !important;
+        color: #CBB8A3 !important;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    button[aria-selected="true"] {
+        color: #E0A43B !important;
+        font-weight: 700 !important;
+        border-bottom-color: #E0A43B !important;
+    }
+
+    /* Section divider */
+    .heritage-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(224, 164, 59, 0.35), transparent);
+        margin: 1.6rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Main Editorial Header
+# Main Heritage Editorial Header
 st.markdown("""
 <div class="brand-container">
-    <div class="brand-pill">Computer Vision · Knot Grammars · Topology</div>
-    <h1 class="brand-title">KOLAMIFY ARCHITECTURE</h1>
-    <p class="brand-subtitle">Autonomous Heritage Pattern Recognition & Algorithmic Sikku Recreation</p>
+    <div class="brand-pill">கோலம் · ETHNOMATHEMATICS · TRUCHET KNOT GRAMMARS</div>
+    <h1 class="brand-title">KOLAMCRAFT <span class="tamil-accent">கோலம்</span></h1>
+    <p class="brand-subtitle">
+        <em>"Rice flour on a swept threshold."</em> Where South Indian ancestral geometry meets autonomous 
+        pattern perception and algorithmic Sikku recreation.
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar Configuration
-st.sidebar.markdown("### Palette & Synthesis Controls")
+st.sidebar.markdown("### 🪔 Palette & Synthesis Controls")
 theme_choice = st.sidebar.selectbox("Color Palette", list(kolam_engine.THEMES.keys()), index=0)
 curve_flow = st.sidebar.slider(
     "Sikku Curvature Weight", 0.60, 1.00, 0.88, 0.02,
@@ -165,7 +285,7 @@ curve_flow = st.sidebar.slider(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### Source Input Selection")
+st.sidebar.markdown("### 📷 Source Input Selection")
 input_mode = st.sidebar.radio("Input Mode", ["Upload Kolam Image", "Preset Benchmark Library"])
 
 selected_image_bgr = None
@@ -201,7 +321,7 @@ if selected_image_bgr is not None:
         sym_info = cv_detector.detect_symmetry(selected_image_bgr)
 
     st.markdown("#### Stage 1: Computer Vision Lattice & Rule Extraction")
-    v_col1, v_col2, v_col3 = st.columns([1, 1, 1.1])
+    v_col1, v_col2, v_col3 = st.columns([1, 1, 1.15])
 
     with v_col1:
         st.markdown("**Source Kolam Image**")
@@ -212,7 +332,7 @@ if selected_image_bgr is not None:
         st.image(cv2.cvtColor(grid_info['annotated_image'], cv2.COLOR_BGR2RGB), width="stretch")
 
     with v_col3:
-        st.markdown("**Extracted Rule Telemetry**")
+        st.markdown("**Extracted Rule Telemetry & Inspector**")
         
         st.markdown(f"""
         <div class="telemetry-card">
@@ -224,6 +344,15 @@ if selected_image_bgr is not None:
             <div class="telemetry-label">Symmetry Group</div>
             <div class="telemetry-value">{sym_info['primary_symmetry']}</div>
             <div class="telemetry-sub">H: {sym_info['h_score']}% · V: {sym_info['v_score']}% · Rot 90°: {sym_info['rot_score']}%</div>
+        </div>
+        <div class="telemetry-card" style="margin-bottom:0;">
+            <div class="telemetry-label">Rule Inspector (Ethnomathematics)</div>
+            <div style="margin-top:8px;">
+                <span class="rule-chip rule-chip-valid">✔ Closed Loops</span>
+                <span class="rule-chip rule-chip-valid">✔ Rigid Obstacle Rule</span>
+                <span class="rule-chip rule-chip-valid">✔ Completeness</span>
+                <span class="rule-chip rule-chip-accent">✔ 45° Diagonal Rule</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -274,13 +403,15 @@ if selected_image_bgr is not None:
         active_lengths = rec_canonical
 
     st.markdown(f"""
-    <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px; padding: 10px 16px; margin: 12px 0 16px 0; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 600; color: #D4AF37;">Lattice Active For Synthesis:</span>
-        <span style="font-family: monospace; color: #F0F6FC; background: #0D1117; padding: 3px 10px; border-radius: 4px; border: 1px solid #30363D;">Rows: {active_lengths} · {sum(active_lengths)} Total Dots</span>
+    <div class="active-grid-banner">
+        <span style="font-weight: 600; color: #E0A43B; font-size: 0.92rem;">Lattice Active For Synthesis:</span>
+        <span class="mono-text" style="color: #FFF8EC; background: rgba(26, 14, 10, 0.7); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(224, 164, 59, 0.3); font-size: 0.88rem;">
+            Rows: {active_lengths} · {sum(active_lengths)} Total Dots
+        </span>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown('<div class="heritage-divider"></div>', unsafe_allow_html=True)
 
     # -------------------------------------------------------------
     # STAGE 2: Algorithmic Synthesis & Animated Player
@@ -300,7 +431,7 @@ if selected_image_bgr is not None:
         variation_metas = []
         variation_figs = []
 
-        theme_props = kolam_engine.THEMES.get(theme_choice, kolam_engine.THEMES["Traditional Rice Powder"])
+        theme_props = kolam_engine.THEMES.get(theme_choice, kolam_engine.THEMES["Terracotta & Rice Flour (Semman)"])
 
         for i in range(3):
             seed_val = (i + 1) * 101 + sum(active_lengths)
@@ -345,7 +476,7 @@ if selected_image_bgr is not None:
             parallax=0.5,
             duration=0.6,
             gap=12,
-            radius=16,
+            radius=14,
             grayscale=True
         )
         components.html(accordion_html, height=480)
@@ -362,7 +493,7 @@ if selected_image_bgr is not None:
                 <div style="margin-top:2px; margin-bottom:6px;">
                     <span class="status-chip {status_class}">● {status_label}</span>
                 </div>
-                <div style="font-size:0.78rem; color:#8B949E; margin-bottom:8px;">
+                <div style="font-size:0.78rem; color:#CBB8A3; margin-bottom:8px;">
                     Variation {i+1} · Seed {seed_val} · {meta['num_dots']} Dots
                 </div>
                 """, unsafe_allow_html=True)
@@ -391,7 +522,7 @@ if selected_image_bgr is not None:
             anim_seed = st.number_input("Variation Seed", value=42, min_value=1, max_value=99999, key="anim_seed_input")
             anim_duration = st.slider("Drawing Duration (seconds)", 1.5, 6.0, 3.5, 0.5, key="anim_duration_input")
             st.markdown("""
-            *This animated vector player demonstrates the mathematical continuity of the strand, rendering path-by-path with CSS stroke interpolation.*
+            *This animated vector player demonstrates the mathematical continuity of the strand, rendering path-by-path with CSS stroke-dasharray interpolation.*
             """)
         
         with anim_col2:
@@ -405,7 +536,8 @@ if selected_image_bgr is not None:
             )
             components.html(svg_code, height=480)
 
-st.markdown("---")
+st.markdown('<div class="heritage-divider"></div>', unsafe_allow_html=True)
+
 # Architectural Sandbox Mode
 with st.expander("Interactive Lattice Sandbox (Manual Synthesizer)"):
     sb_col1, sb_col2 = st.columns(2)

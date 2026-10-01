@@ -17,10 +17,16 @@ SPACING = 60
 RADIUS = SPACING / 2
 
 THEMES = {
-    "Traditional Rice Powder": {"bg": "#211510", "line": "#fffbf0", "dot": "#ffffff", "glow": "#ffecd1"},
-    "Temple Saffron & Gold": {"bg": "#1c0b1e", "line": "#f6c344", "dot": "#ffffff", "glow": "#ffd166"},
-    "Midnight Indigo": {"bg": "#121629", "line": "#e2c044", "dot": "#ffffff", "glow": "#f4d35e"},
-    "Terracotta Dawn": {"bg": "#2e1511", "line": "#f7ede2", "dot": "#ffffff", "glow": "#f5cac3"}
+    "Terracotta & Rice Flour (Semman)": {"bg": "#7A2E1D", "line": "#FFF8EC", "dot": "#FFFFFF", "glow": "#F7EFE2"},
+    "Traditional Granite (Threshold)": {"bg": "#211510", "line": "#FFF8EC", "dot": "#FFFFFF", "glow": "#FFEED6"},
+    "Temple Turmeric & Ochre": {"bg": "#3B1B10", "line": "#E0A43B", "dot": "#FFF8EC", "glow": "#FCD34D"},
+    "Sacred Banana Leaf": {"bg": "#1E382B", "line": "#FFF8EC", "dot": "#E0A43B", "glow": "#A7F3D0"},
+    "Kumkum & Red Earth": {"bg": "#4A120E", "line": "#FFF8EC", "dot": "#E0A43B", "glow": "#FFAAA6"},
+    # Backwards-compatible aliases
+    "Traditional Rice Powder": {"bg": "#211510", "line": "#FFF8EC", "dot": "#FFFFFF", "glow": "#FFEED6"},
+    "Temple Saffron & Gold": {"bg": "#3B1B10", "line": "#E0A43B", "dot": "#FFF8EC", "glow": "#FCD34D"},
+    "Midnight Indigo": {"bg": "#121629", "line": "#E2C044", "dot": "#FFFFFF", "glow": "#F4D35E"},
+    "Terracotta Dawn": {"bg": "#7A2E1D", "line": "#FFF8EC", "dot": "#FFFFFF", "glow": "#F7EFE2"}
 }
 
 def create_dots(lengths):
@@ -385,15 +391,15 @@ def render_accordion_gallery_html(
     items,
     default_index=1,
     height=460,
-    accent_color="#D4AF37",
-    overlay_color="#080B10",
-    text_color="#FFFFFF",
+    accent_color="#E0A43B",
+    overlay_color="#1F110D",
+    text_color="#FFF8EC",
     expand_ratio=0.52,
     tilt=8,
     parallax=0.5,
     duration=0.6,
     gap=12,
-    radius=16,
+    radius=14,
     grayscale=True
 ):
     """
@@ -459,8 +465,8 @@ def render_accordion_gallery_html(
     outline: none;
     transform-style: preserve-3d;
     transform-origin: center center;
-    background: #0A0713;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1C0F0A;
+    border: 1px solid rgba(224, 164, 59, 0.2);
     box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
     will-change: flex-grow, transform;
     -webkit-tap-highlight-color: transparent;
@@ -472,8 +478,8 @@ def render_accordion_gallery_html(
   }}
 
   .ag-panel--active {{
-    border-color: rgba(212, 175, 55, 0.5);
-    box-shadow: 0 14px 40px -12px rgba(212, 175, 55, 0.3), 0 0 24px rgba(0, 0, 0, 0.9);
+    border-color: rgba(224, 164, 59, 0.7);
+    box-shadow: 0 14px 40px -12px rgba(224, 164, 59, 0.35), 0 0 24px rgba(0, 0, 0, 0.9);
   }}
 
   .ag-panel__frame {{
@@ -510,7 +516,7 @@ def render_accordion_gallery_html(
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(180deg, transparent 40%, rgba(8, 11, 16, 0.82) 80%, rgba(8, 11, 16, 0.96) 100%);
+    background: linear-gradient(180deg, transparent 40%, rgba(28, 15, 10, 0.82) 80%, rgba(28, 15, 10, 0.96) 100%);
   }}
 
   .ag-panel__badge {{
@@ -531,14 +537,14 @@ def render_accordion_gallery_html(
     transition: opacity 0.3s ease;
   }}
   .badge-brahma {{
-    background: rgba(46, 160, 67, 0.22);
-    color: #3FB950;
-    border: 1px solid rgba(46, 160, 67, 0.4);
+    background: rgba(47, 107, 79, 0.38);
+    color: #58D68D;
+    border: 1px solid rgba(47, 107, 79, 0.65);
   }}
   .badge-interlocking {{
-    background: rgba(56, 139, 253, 0.22);
-    color: #58A6FF;
-    border: 1px solid rgba(56, 139, 253, 0.4);
+    background: rgba(224, 164, 59, 0.22);
+    color: #F3C973;
+    border: 1px solid rgba(224, 164, 59, 0.5);
   }}
 
   .ag-panel__download {{
@@ -551,9 +557,9 @@ def render_accordion_gallery_html(
     gap: 6px;
     padding: 5px 11px;
     border-radius: 6px;
-    background: rgba(13, 17, 23, 0.85);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    color: var(--ag-accent);
+    background: rgba(31, 17, 13, 0.88);
+    border: 1px solid rgba(224, 164, 59, 0.45);
+    color: #F7EFE2;
     font-size: 0.72rem;
     font-weight: 600;
     text-decoration: none;
@@ -565,7 +571,7 @@ def render_accordion_gallery_html(
     pointer-events: auto;
   }}
   .ag-panel__download:hover {{
-    background: rgba(212, 175, 55, 0.25);
+    background: rgba(224, 164, 59, 0.25);
     color: #FFF;
     border-color: var(--ag-accent);
   }}
